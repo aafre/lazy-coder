@@ -20,23 +20,42 @@ The agent reads the problem first, *then* climbs. Lazy about the solution, never
 
 ## Before / after
 
-You ask for a date picker. Your agent installs flatpickr, writes a wrapper component, adds a stylesheet, and starts a discussion about timezones.
+You ask for a URL query parser. Your agent writes a 25-line function that splits on `&`, decodes components, handles edge cases manually.
 
 With lazy-coder:
 
-```html
-<input type="date">
+```js
+const parseQuery = (url) => Object.fromEntries(new URL(url, "http://x").searchParams);
 ```
 
-You ask for an email validator. Your agent writes a 40-line regex parser with RFC 5322 compliance.
+One line. `URLSearchParams` is a native platform feature (rung 4) — handles encoding, empty values, and `+` as space for free.
+
+---
+
+You ask for a slug generator. Your agent installs `python-slugify`, writes a wrapper class, adds Unicode normalization tables and a test suite.
 
 With lazy-coder:
 
 ```python
 import re
-def is_valid_email(email):
-    return bool(re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email))
+
+def slugify(s):
+    return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
 ```
+
+Three lines. `re` is stdlib (rung 3). No dependencies.
+
+---
+
+You ask for a color picker component. Your agent installs a color picker library, writes a wrapper, adds a stylesheet, and builds conversion utilities.
+
+With lazy-coder:
+
+```html
+<input type="color">
+```
+
+The browser has one (rung 4).
 
 ## What it doesn't cut
 
