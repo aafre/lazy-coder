@@ -20,42 +20,74 @@ The agent reads the problem first, *then* climbs. Lazy about the solution, never
 
 ## Before / after
 
-You ask for a URL query parser. Your agent writes a 25-line function that splits on `&`, decodes components, handles edge cases manually.
+**"Generate a unique ID."**
+
+Without lazy-coder your agent installs `uuid`, imports it, wraps it in a helper:
+
+```js
+import { v4 as uuidv4 } from 'uuid';
+
+export function generateId() {
+  return uuidv4();
+}
+```
 
 With lazy-coder:
 
 ```js
-const parseQuery = (url) => Object.fromEntries(new URL(url, "http://x").searchParams);
+crypto.randomUUID()
 ```
 
-One line. `URLSearchParams` is a native platform feature (rung 4) — handles encoding, empty values, and `+` as space for free.
+Built into every modern runtime — browsers, Node 19+, Deno, Bun. No package, no wrapper.
 
 ---
 
-You ask for a slug generator. Your agent installs `python-slugify`, writes a wrapper class, adds Unicode normalization tables and a test suite.
+**"Deep clone this object."**
+
+Without lazy-coder your agent writes a recursive clone function with circular reference handling:
+
+```js
+function deepClone(obj, seen = new WeakMap()) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (seen.has(obj)) return seen.get(obj);
+  const clone = Array.isArray(obj) ? [] : {};
+  seen.set(obj, clone);
+  for (const key of Object.keys(obj)) {
+    clone[key] = deepClone(obj[key], seen);
+  }
+  return clone;
+}
+```
 
 With lazy-coder:
 
-```python
-import re
-
-def slugify(s):
-    return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')
+```js
+structuredClone(obj)
 ```
 
-Three lines. `re` is stdlib (rung 3). No dependencies.
+Native since 2022. Handles circular refs, dates, maps, sets, array buffers — all the edge cases the hand-rolled version missed.
 
 ---
 
-You ask for a color picker component. Your agent installs a color picker library, writes a wrapper, adds a stylesheet, and builds conversion utilities.
+**"Add copy-to-clipboard on this button."**
+
+Without lazy-coder your agent installs `clipboard.js`, initialises it, binds events, and adds fallback for older browsers:
+
+```js
+import ClipboardJS from 'clipboard';
+
+const clipboard = new ClipboardJS('.copy-btn');
+clipboard.on('success', (e) => { /* show tooltip */ e.clearSelection(); });
+clipboard.on('error', (e) => { /* fallback: select + prompt */ });
+```
 
 With lazy-coder:
 
-```html
-<input type="color">
+```js
+btn.onclick = () => navigator.clipboard.writeText(text);
 ```
 
-The browser has one (rung 4).
+One line. The Clipboard API is native and available in all modern browsers.
 
 ## What it doesn't cut
 
@@ -79,7 +111,7 @@ Works with any agent that reads `AGENTS.md`: Gemini CLI, Antigravity, Claude Cod
 
 ## Why it works
 
-Most AI agents over-build by default. They add abstractions you didn't ask for, install dependencies for things the standard library handles, and generate boilerplate to feel thorough. The ladder short-circuits this by forcing a priority check at each level before any code is written.
+Most AI agents over-build by default. They add abstractions you didn't ask for, install dependencies for things the platform already handles, and generate boilerplate to feel thorough. The ladder short-circuits this by forcing a priority check before any code is written.
 
 The key insight: the rules explicitly carve out safety — input validation, error handling, security, accessibility are never lazy. A bare "write short code" prompt drops safety. This doesn't.
 
