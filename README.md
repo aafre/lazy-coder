@@ -2,8 +2,6 @@
 
 A minimal `AGENTS.md` that makes AI coding agents write less code, faster, without sacrificing safety.
 
-**19 lines. No plugin. No install. No dependencies.**
-
 ## What it does
 
 Gives your AI agent a 7-rung decision ladder to climb before writing any code:
