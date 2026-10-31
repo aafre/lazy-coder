@@ -22,9 +22,25 @@ Not lazy about: understanding the problem, input validation at trust boundaries,
 
 ## Python (when editing .py files)
 
-Follow the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html). If the project configures ruff, run `ruff format . && ruff check --fix .` and fix every finding; don't restate or fight the linter. For an unclear case, read the matching section of the guide.
+Google Python style. If the project configures ruff, run `ruff format . && ruff check --fix .` and fix every finding; don't restate or fight the linter.
 
-- Docstrings: read [§3.8](https://google.github.io/styleguide/pyguide.html#s3.8-comments-and-docstrings) first. One-line summary ending in a period, then `Args:`, `Returns:`/`Yields:`, `Raises:`. Say what it means, not the type the annotation already states.
+- Docstrings on public modules, classes and functions. One-line summary ending in a period, then only the sections that apply. Say what it means, not the type the annotation already states. Classes document public attributes under `Attributes:`.
+
+  ```python
+  def fetch_rows(table: str, keys: Sequence[str]) -> dict[str, Row]:
+      """Fetches rows from a table by key.
+
+      Args:
+          table: Name of the table to read.
+          keys: Row keys to fetch. Missing keys are skipped.
+
+      Returns:
+          Map of key to row, for keys that were found.
+
+      Raises:
+          IOError: The table could not be read.
+      """
+  ```
 - Imports: `import x` for packages and modules; `from x import y` only when `y` is a module (`typing` and `collections.abc` names exempt).
 - Exceptions: raise built-ins (`ValueError`) for bad input. Catch the narrowest exception with the smallest `try`. Never `assert` to validate input; asserts belong in tests and self-checks.
 - No getters or setters wrapping an attribute; make it public. Properties only for cheap, obvious computation.
