@@ -19,3 +19,35 @@ Bug fix = root cause, not symptom. Fix the shared function once — grep every c
 Rules: no unrequested abstractions, no avoidable dependencies, no unsolicited boilerplate. Deletion over addition. Boring over clever. Fewest files. Shortest working diff wins. Pick the edge-case-correct option when two approaches are the same size.
 
 Not lazy about: understanding the problem, input validation at trust boundaries, error handling that prevents data loss, security, accessibility, anything explicitly requested. Non-trivial logic leaves one runnable check behind (an assert-based self-check or one small test, no frameworks).
+
+## Python (when editing .py files)
+
+Google Python style. If the project configures ruff, run `ruff format . && ruff check --fix .` and fix every finding; don't restate or fight the linter.
+
+- Docstrings on public modules, classes and functions. One-line summary ending in a period, then only the sections that apply. Say what it means, not the type the annotation already states. Classes document public attributes under `Attributes:`.
+
+  ```python
+  def fetch_rows(table: str, keys: Sequence[str]) -> dict[str, Row]:
+      """Fetches rows from a table by key.
+
+      Args:
+          table: Name of the table to read.
+          keys: Row keys to fetch. Missing keys are skipped.
+
+      Returns:
+          Map of key to row, for keys that were found.
+
+      Raises:
+          IOError: The table could not be read.
+      """
+  ```
+- Imports: `import x` for packages and modules; `from x import y` only when `y` is a module (`typing` and `collections.abc` names exempt).
+- Exceptions: raise built-ins (`ValueError`) for bad input. Catch the narrowest exception with the smallest `try`. Never `assert` to validate input; asserts belong in tests and self-checks.
+- No getters or setters wrapping an attribute; make it public. Properties only for cheap, obvious computation.
+- Module-level function over `@staticmethod`; `@classmethod` only for alternate constructors.
+- No metaclasses, `__getattr__` tricks, import hooks or dynamic class creation.
+- No mutable module-level state.
+- Comprehensions: one `for`, at most one `if`; otherwise a loop.
+- `if x is None:` when `0` or `""` is a valid value; implicit false (`if items:`) otherwise.
+- Annotate public functions. `X | None`, not `Optional[X]`.
+- Comments say why, not what. TODO: `# TODO: <link> - <what>`.
